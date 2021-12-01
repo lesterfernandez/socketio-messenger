@@ -1,0 +1,20 @@
+{
+  "name": "@socket-messenger/server",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "author": "Lester Fernandez",
+  "scripts": {
+    "dev": "nodemon index.js",
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "express-session": "^1.17.2",
+    "helmet": "^4.6.0",
+    "passport": "^0.5.0",
+    "passport-local": "^1.0.0",
+    "pg": "^8.7.1",
+    "socket.io": "^4.4.0"
+  }
+}
