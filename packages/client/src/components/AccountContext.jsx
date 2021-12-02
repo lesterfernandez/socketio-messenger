@@ -1,14 +1,15 @@
-import { createContext, useEffect, useState } from "react";
+import React, { createContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 
 export const UserContext = createContext();
 
 const AccountContext = ({ children }) => {
   const [userObject, setUser] = useState({ loggedIn: null });
+
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch(`http://localhost:4000/login`, {
+    fetch(`http://localhost:4000/auth/login`, {
       credentials: "include",
     })
       .catch(() => {
@@ -31,7 +32,8 @@ const AccountContext = ({ children }) => {
         setUser({ ...data });
         navigate("/home");
       });
-  }, [navigate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <UserContext.Provider value={{ userObject, setUser }}>

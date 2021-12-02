@@ -6,6 +6,14 @@
   "workspaces": {
     "packages": [
       "packages/*"
+    ],
+    "nohoist": [
+      "passport",
+      "passport/**",
+      "**/passport/**",
+      "passport-local/**",
+      "**/passport-local/**",
+      "passport-local"
     ]
   }
 }

@@ -1,12 +1,13 @@
 import { Button, Heading, VStack } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
+import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import * as Yup from "yup";
 import { UserContext } from "../AccountContext";
 import TextField from "./TextField";
 
 const SignUp = () => {
-  const { setUser } = UserContext;
+  const { setUser } = useContext(UserContext);
   const navigate = useNavigate();
   return (
     <Formik
@@ -23,10 +24,13 @@ const SignUp = () => {
           .min(6, "Password must be at least 6 characters"),
       })}
       onSubmit={(values, actions) => {
-        fetch(`http://localhost:4000/login`, {
+        fetch(`http://localhost:4000/auth/login`, {
           method: "POST",
           credentials: "include",
           body: JSON.stringify(values),
+          headers: {
+            "Content-Type": "application/json",
+          },
         })
           .then(r => r.json())
           .then(data => {

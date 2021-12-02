@@ -1,49 +1,52 @@
+require("dotenv").config();
 const express = require("express");
 const { Server } = require("socket.io");
 const indexRouter = require("./routers/indexRouter");
-const passport = require("passport");
+const authRouter = require("./routers/authRouter");
 const session = require("express-session");
 const helmet = require("helmet");
 const cors = require("cors");
-
 const app = express();
 const server = require("http").createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: `${process.env.CLIENT_URL}`,
     credentials: true,
   },
 });
 
 const sessionMiddleware = session({
-  secret: "secret",
+  name: "sid",
+  secret: process.env.SESSION_SECRET || "secret",
   resave: false,
   saveUninitialized: false,
+  cookie: {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 1000 * 60 * 60 * 24 * 7, // one week
+  },
 });
 
 app.use(helmet());
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: `${process.env.CLIENT_URL}`,
     credentials: true,
   })
 );
-app.use(sessionMiddleware);
-app.use(passport.initialize());
-app.use(passport.session());
 app.use(express.json());
+app.use(sessionMiddleware);
 
 app.use("/api", indexRouter);
+app.use("/auth", authRouter);
 
 const wrap = middleware => (socket, next) => middleware(socket.request, {}, next);
 
 io.use(wrap(sessionMiddleware));
-io.use(wrap(passport.initialize));
-io.use(wrap(passport.session));
 
 io.on("connection", socket => {});
 
 // start server
-server.listen(4000, () => {
+server.listen(process.env.SERVER_PORT || 4000, () => {
   console.log("Server up on port 4000");
 });
