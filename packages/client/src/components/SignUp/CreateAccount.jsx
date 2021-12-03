@@ -1,3 +1,4 @@
+import { ArrowBackIcon } from "@chakra-ui/icons";
 import { Button, ButtonGroup, Heading, VStack } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
 import { useContext, useState } from "react";
@@ -6,7 +7,7 @@ import * as Yup from "yup";
 import { UserContext } from "../AccountContext";
 import TextField from "./TextField";
 
-const SignUp = () => {
+const CreateAccount = () => {
   const { setUser } = useContext(UserContext);
   const navigate = useNavigate();
   const [serverErrorMsg, setErrorMsg] = useState(null);
@@ -25,7 +26,7 @@ const SignUp = () => {
           .min(6, "Password must be at least 6 characters"),
       })}
       onSubmit={(values, actions) => {
-        fetch(`http://localhost:4000/auth/login`, {
+        fetch(`http://localhost:4000/auth/register`, {
           method: "POST",
           credentials: "include",
           body: JSON.stringify(values),
@@ -55,7 +56,7 @@ const SignUp = () => {
         w={{ base: "90%", md: "500px" }}
         m="auto"
       >
-        <Heading textAlign="center">Log In or Create Account</Heading>
+        <Heading textAlign="center">Create Account</Heading>
         <Heading
           textAlign="center"
           size="md"
@@ -82,11 +83,17 @@ const SignUp = () => {
           autoComplete="off"
         />
         <ButtonGroup>
-          <Button type="submit" colorScheme="teal">
-            Log in
+          <Button
+            colorScheme="teal"
+            variant="outline"
+            as={Link}
+            to="/"
+            leftIcon={<ArrowBackIcon />}
+          >
+            Back
           </Button>
-          <Button colorScheme="teal" variant="outline" as={Link} to="/signup">
-            Create Account
+          <Button type="submit" colorScheme="teal">
+            Sign Up
           </Button>
         </ButtonGroup>
       </VStack>
@@ -94,4 +101,4 @@ const SignUp = () => {
   );
 };
 
-export default SignUp;
+export default CreateAccount;

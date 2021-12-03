@@ -13,20 +13,7 @@ router
     const queriedUser = await getUserByUsername(potentialUser.username);
 
     if (queriedUser.rowCount === 0) {
-      const hashedPass = await bcrypt.hash(potentialUser.password, 10);
-
-      const newInsert = await pg.query(
-        "INSERT INTO users(username, passhash) values($1, $2) RETURNING id, username",
-        [potentialUser.username, hashedPass]
-      );
-
-      newUser = {
-        username: newInsert.rows[0].username,
-        id: newInsert.rows[0].id,
-        loggedIn: true,
-      };
-
-      req.session.user = { username: newUser.username, id: newUser.id };
+      newUser = { loggedIn: false, status: "Wrong username or password" };
     } else {
       const usersMatch = await bcrypt.compare(
         potentialUser.password,
@@ -42,7 +29,7 @@ router
 
         req.session.user = { username: newUser.username, id: newUser.id };
       } else {
-        newUser = { loggedIn: false };
+        newUser = { loggedIn: false, status: "Wrong username or password" };
       }
     }
 
@@ -55,5 +42,33 @@ router
       id: req.session.user.id,
     });
   });
+
+router.route("/register").post(async (req, res) => {
+  const potentialUser = { ...req.body };
+  let newUser = {};
+
+  const queriedUser = await getUserByUsername(potentialUser.username);
+
+  if (queriedUser.rowCount === 0) {
+    const hashedPass = await bcrypt.hash(potentialUser.password, 10);
+
+    const newInsert = await pg.query(
+      "INSERT INTO users(username, passhash) values($1, $2) RETURNING id, username",
+      [potentialUser.username, hashedPass]
+    );
+
+    newUser = {
+      username: newInsert.rows[0].username,
+      id: newInsert.rows[0].id,
+      loggedIn: true,
+    };
+
+    req.session.user = { username: newUser.username, id: newUser.id };
+  } else {
+    newUser = { loggedIn: false, status: "Username taken" };
+  }
+
+  res.json({ ...newUser });
+});
 
 module.exports = router;

@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { Navigate, Outlet, useLocation } from "react-router";
+import { Navigate, Outlet } from "react-router";
 import { UserContext } from "./AccountContext";
 
 const useAuth = () => {
@@ -8,9 +8,8 @@ const useAuth = () => {
 };
 
 const PrivateRoutes = () => {
-  const location = useLocation();
   const isAuth = useAuth();
-  return isAuth ? <Outlet /> : <Navigate to="/" state={{ from: location }} />;
+  return isAuth ? <Outlet /> : <Navigate to="/" />;
 };
 
 export default PrivateRoutes;
