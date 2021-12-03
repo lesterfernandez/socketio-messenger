@@ -10,7 +10,7 @@ const app = express();
 const server = require("http").createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: `${process.env.CLIENT_URL}`,
+    origin: process.env.CLIENT_URL,
     credentials: true,
   },
 });
@@ -22,7 +22,8 @@ const sessionMiddleware = session({
   saveUninitialized: false,
   cookie: {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: process.env.NODE_ENV === "production" ? "true" : "auto",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     maxAge: 1000 * 60 * 60 * 24 * 7, // one week
   },
 });
@@ -30,11 +31,12 @@ const sessionMiddleware = session({
 app.use(helmet());
 app.use(
   cors({
-    origin: `${process.env.CLIENT_URL}`,
+    origin: process.env.CLIENT_URL,
     credentials: true,
   })
 );
 app.use(express.json());
+app.set("trust proxy", 1);
 app.use(sessionMiddleware);
 
 app.use("/api", indexRouter);

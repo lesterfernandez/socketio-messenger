@@ -56,6 +56,7 @@ const SignUp = () => {
           size="lg"
           placeholder="enter username..."
           label="Username"
+          autoComplete="off"
         />
 
         <TextField
@@ -64,6 +65,7 @@ const SignUp = () => {
           size="lg"
           placeholder="enter password..."
           label="Password"
+          autoComplete="off"
         />
 
         <Button type="submit" colorScheme="teal">
