@@ -15,12 +15,16 @@ router
     if (queriedUser.rowCount === 0) {
       const hashedPass = await bcrypt.hash(potentialUser.password, 10);
 
-      const { id, username } = await pg.query(
+      const newInsert = await pg.query(
         "INSERT INTO users(username, passhash) values($1, $2) RETURNING id, username",
         [potentialUser.username, hashedPass]
-      ).rows[0];
+      );
 
-      newUser = { username, id, loggedIn: true };
+      newUser = {
+        username: newInsert.rows[0].username,
+        id: newInsert.rows[0].id,
+        loggedIn: true,
+      };
 
       req.session.user = { username: newUser.username, id: newUser.id };
     } else {
