@@ -5,9 +5,14 @@ const indexRouter = require("./routers/indexRouter");
 const authRouter = require("./routers/authRouter");
 const helmet = require("helmet");
 const cors = require("cors");
-const { socketAuth, addFriend } = require("./connectors/socketAuth");
+const {
+  socketAuth,
+  addFriend,
+  setRedisUser,
+  initialize,
+} = require("./connectors/socketAuth");
 const session = require("express-session");
-const redis = require("redis");
+const Redis = require("ioredis");
 
 const app = express();
 const server = require("http").createServer(app);
@@ -19,8 +24,7 @@ const io = new Server(server, {
 });
 
 const RedisStore = require("connect-redis")(session);
-const redisClient = redis.createClient({ legacyMode: true });
-redisClient.connect();
+const redisClient = new Redis();
 
 const sessionMiddleware = session({
   name: "sid",
@@ -57,11 +61,11 @@ io.use(wrap(sessionMiddleware));
 io.use(socketAuth);
 
 io.on("connect", socket => {
-  console.log(`Client ${socket.user.username} connected...`);
-  console.log(`sessionID: ${socket.sessionID} / userID: ${socket.userID}`);
+  setRedisUser(redisClient, socket);
+  initialize(socket);
 
   socket.on("add chat", username => {
-    addFriend(socket, username);
+    addFriend(redisClient, socket, username);
   });
 
   socket.on("disconnecting", reason => {

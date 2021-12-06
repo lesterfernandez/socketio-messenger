@@ -3,6 +3,7 @@ const router = require("express").Router();
 const bcrypt = require("bcrypt");
 const { getUserByUsername } = require("../connectors/getUser");
 const { isAuth } = require("../connectors/isAuth");
+const { v4: uuidv4 } = require("uuid");
 
 router
   .route("/login")
@@ -30,7 +31,11 @@ router
           username: potentialUser.username,
         };
 
-        req.session.user = { username: newUser.username, id: newUser.id };
+        req.session.user = {
+          username: newUser.username,
+          id: newUser.id,
+          userID: queriedUser.rows[0].userid,
+        };
       } else {
         newUser = {
           loggedIn: false,
@@ -59,8 +64,8 @@ router.route("/register").post(async (req, res) => {
     const hashedPass = await bcrypt.hash(potentialUser.password, 10);
 
     const newInsert = await pg.query(
-      "INSERT INTO users(username, passhash) values($1, $2) RETURNING id, username",
-      [potentialUser.username, hashedPass]
+      "INSERT INTO users(username, passhash, userID) values($1, $2, $3) RETURNING id, username, userID",
+      [potentialUser.username, hashedPass, uuidv4()]
     );
 
     newUser = {
@@ -69,7 +74,11 @@ router.route("/register").post(async (req, res) => {
       loggedIn: true,
     };
 
-    req.session.user = { username: newUser.username, id: newUser.id };
+    req.session.user = {
+      username: newUser.username,
+      id: newUser.id,
+      userID: newInsert.rows[0].userid,
+    };
   } else {
     newUser = { loggedIn: false, status: "Username taken" };
   }
