@@ -4,7 +4,7 @@ import { useContext, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import * as Yup from "yup";
 import { UserContext } from "../AccountContext";
-import TextField from "./TextField";
+import TextField from "../shared/TextField";
 
 const SignUp = () => {
   const { setUser } = useContext(UserContext);

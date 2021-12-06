@@ -64,7 +64,7 @@ io.on("connect", socket => {
   setRedisUser(redisClient, socket);
   initialize(socket);
 
-  socket.on("add chat", username => {
+  socket.on("add friend", username => {
     addFriend(redisClient, socket, username);
   });
 

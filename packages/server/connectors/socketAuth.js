@@ -34,18 +34,32 @@ module.exports.addFriend = (redis, socket, username) => {
       socket.emit("error", err);
       console.log(err);
     } else {
+      if (!result) {
+        console.log("friend doesn't exist");
+        return;
+      }
+      if (username === socket.username) {
+        console.log("tried to add self as friend..");
+        return;
+      }
       const session = socket.request.session;
 
       if (!session.user.friends) {
         session.user.friends = [];
+      } else if (session.user.friends.find(user => user.username === username)) {
+        console.log("friend already added");
+        return;
       }
 
-      session.user.friends = [...session.user.friends, { username: result }];
+      session.user.friends = [
+        ...session.user.friends,
+        { username, userID: result },
+      ];
 
       socket.request.session.save();
-      console.log(socket.request.session.user);
+      console.log("friends: ", socket.request.session.user.friends);
 
-      socket.emit("friend added", result);
+      socket.emit("friends", socket.request.session.user.friends);
     }
   });
 };

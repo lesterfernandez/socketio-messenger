@@ -5,7 +5,7 @@ import { UserContext } from "../AccountContext";
 import Chat from "./Chat";
 import ChatSideBar from "./ChatSideBar";
 
-const FriendContext = createContext();
+export const FriendContext = createContext();
 
 const Home = () => {
   const { setUser } = useContext(UserContext);
@@ -20,11 +20,13 @@ const Home = () => {
       console.log("connected to socketio server");
     });
     socket.on("friends", friends => {
+      console.log("friends: ", friends);
       setFriendList(friends);
     });
     return () => {
       socket.off("connect_error");
       socket.off("connect");
+      socket.off("friends");
     };
   }, [setUser]);
 
