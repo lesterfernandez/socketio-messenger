@@ -13,7 +13,10 @@ router
     const queriedUser = await getUserByUsername(potentialUser.username);
 
     if (queriedUser.rowCount === 0) {
-      newUser = { loggedIn: false, status: "Wrong username or password" };
+      newUser = {
+        loggedIn: false,
+        status: "Wrong username or password",
+      };
     } else {
       const usersMatch = await bcrypt.compare(
         potentialUser.password,
@@ -29,7 +32,10 @@ router
 
         req.session.user = { username: newUser.username, id: newUser.id };
       } else {
-        newUser = { loggedIn: false, status: "Wrong username or password" };
+        newUser = {
+          loggedIn: false,
+          status: "Wrong username or password",
+        };
       }
     }
 

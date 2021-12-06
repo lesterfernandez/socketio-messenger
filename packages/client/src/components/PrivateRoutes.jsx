@@ -2,7 +2,7 @@ import { useContext } from "react";
 import { Navigate, Outlet } from "react-router";
 import { UserContext } from "./AccountContext";
 
-const useAuth = () => {
+export const useAuth = () => {
   const { userObject } = useContext(UserContext);
   return userObject && userObject.loggedIn === true;
 };
