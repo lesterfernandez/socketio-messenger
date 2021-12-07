@@ -16,7 +16,7 @@ const Chat = () => {
   ) : (
     <TabPanels>
       <TabPanel>
-        <Heading textAlign="center" size="md">
+        <Heading textAlign="center" size="md" pt="4rem">
           No friends... click on the chat icon to add a friend!
         </Heading>
       </TabPanel>

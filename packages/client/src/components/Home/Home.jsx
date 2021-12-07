@@ -48,6 +48,7 @@ const Home = () => {
       socket.off("connect");
       socket.off("friends");
       socket.off("offline");
+      socket.off("online");
     };
   }, [setUser]);
 
