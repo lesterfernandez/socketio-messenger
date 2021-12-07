@@ -23,10 +23,29 @@ const Home = () => {
       console.log("friends: ", friends);
       setFriendList(friends);
     });
+    socket.on("offline", username => {
+      setFriendList(c =>
+        c.map(friend => {
+          return friend.username === username
+            ? { ...friend, connected: false }
+            : friend;
+        })
+      );
+    });
+    socket.on("online", username => {
+      setFriendList(c =>
+        c.map(friend => {
+          return friend.username === username
+            ? { ...friend, connected: true }
+            : friend;
+        })
+      );
+    });
     return () => {
       socket.off("connect_error");
       socket.off("connect");
       socket.off("friends");
+      socket.off("offline");
     };
   }, [setUser]);
 

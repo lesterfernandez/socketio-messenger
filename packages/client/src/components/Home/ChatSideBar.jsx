@@ -1,7 +1,14 @@
 import { Button } from "@chakra-ui/button";
 import { useDisclosure } from "@chakra-ui/hooks";
 import { ChatIcon } from "@chakra-ui/icons";
-import { Divider, Heading, HStack, Text, VStack } from "@chakra-ui/layout";
+import {
+  Circle,
+  Divider,
+  Heading,
+  HStack,
+  Text,
+  VStack,
+} from "@chakra-ui/layout";
 import { useContext } from "react";
 import { FriendContext } from "./Home";
 import NewFriendModal from "./NewFriendModal";
@@ -23,7 +30,14 @@ const ChatSideBar = () => {
         <Divider />
         {friendList.length > 0 &&
           friendList.map((friendObject, idx) => (
-            <Text key={idx}>{friendObject.username}test</Text>
+            <HStack>
+              <Circle
+                bg={friendObject.connected ? "green" : "red.300"}
+                height="20px"
+                width="20px"
+              />
+              <Text key={idx}>{friendObject.username}</Text>
+            </HStack>
           ))}
       </VStack>
       <NewFriendModal isOpen={isOpen} onClose={onClose} />
