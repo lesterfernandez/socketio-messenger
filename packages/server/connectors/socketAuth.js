@@ -37,22 +37,21 @@ module.exports.initialize = async (redis, socket) => {
         socket.to(result.userID).emit("online", socket.username);
       });
     });
+    session.save();
     socket.emit("friends", socket.request.session.user.friends);
   } else {
     session.user.friends = [];
+    session.save();
   }
-  session.save();
 };
 
 module.exports.addFriend = async (redis, socket, username) => {
-  const friendConnected = await redis.hget(`userid:${username}`, "connected");
-
-  redis.hget(`userid:${username}`, "userID", (err, result) => {
+  redis.hgetall(`userid:${username}`, (err, result) => {
     if (err) {
       socket.emit("error", err);
       console.log(err);
     } else {
-      if (!result || !result.username) {
+      if (!result || !result.userID) {
         console.log("friend doesn't exist");
         return;
       }
@@ -71,7 +70,7 @@ module.exports.addFriend = async (redis, socket, username) => {
 
       session.user.friends = [
         ...session.user.friends,
-        { username, userID: result, connected: friendConnected },
+        { username, userID: result.userID, connected: result.connected },
       ];
 
       socket.request.session.save();

@@ -1,4 +1,5 @@
 import { Grid, GridItem } from "@chakra-ui/layout";
+import { Tabs } from "@chakra-ui/tabs";
 import { createContext, useContext, useEffect, useState } from "react";
 import socket from "../../socket";
 import { UserContext } from "../AccountContext";
@@ -24,10 +25,11 @@ const Home = () => {
       setFriendList(friends);
     });
     socket.on("offline", username => {
+      console.log("friend offline: ", username);
       setFriendList(c =>
         c.map(friend => {
           return friend.username === username
-            ? { ...friend, connected: false }
+            ? { ...friend, connected: "false" }
             : friend;
         })
       );
@@ -36,7 +38,7 @@ const Home = () => {
       setFriendList(c =>
         c.map(friend => {
           return friend.username === username
-            ? { ...friend, connected: true }
+            ? { ...friend, connected: "true" }
             : friend;
         })
       );
@@ -51,7 +53,7 @@ const Home = () => {
 
   return (
     <FriendContext.Provider value={{ friendList, setFriendList }}>
-      <Grid templateColumns="repeat(10, 1fr)" width="100%" minH="100vh">
+      <Grid templateColumns="repeat(10, 1fr)" width="100%" minH="100vh" as={Tabs}>
         <GridItem colSpan="3">
           <ChatSideBar />
         </GridItem>

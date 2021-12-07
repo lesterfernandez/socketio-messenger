@@ -9,6 +9,7 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/layout";
+import { Tab, TabList } from "@chakra-ui/tabs";
 import { useContext } from "react";
 import { FriendContext } from "./Home";
 import NewFriendModal from "./NewFriendModal";
@@ -28,17 +29,19 @@ const ChatSideBar = () => {
           </Button>
         </HStack>
         <Divider />
-        {friendList.length > 0 &&
-          friendList.map((friendObject, idx) => (
-            <HStack>
-              <Circle
-                bg={friendObject.connected ? "green" : "red.300"}
-                height="20px"
-                width="20px"
-              />
-              <Text key={idx}>{friendObject.username}</Text>
-            </HStack>
-          ))}
+        <VStack as={TabList}>
+          {friendList.length > 0 &&
+            friendList.map((friendObject, idx) => (
+              <HStack as={Tab} key={"label:" + idx}>
+                <Circle
+                  bg={friendObject.connected === "true" ? "green" : "red.300"}
+                  height="20px"
+                  width="20px"
+                />
+                <Text>{friendObject.username}</Text>
+              </HStack>
+            ))}
+        </VStack>
       </VStack>
       <NewFriendModal isOpen={isOpen} onClose={onClose} />
     </>
