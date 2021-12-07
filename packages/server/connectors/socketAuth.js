@@ -27,16 +27,16 @@ module.exports.initialize = async (redis, socket) => {
   socket.join(socket.userID);
   const session = socket.request.session;
 
-  console.log(`Client ${socket.user.username} connected...`);
-  console.log(`sessionID: ${socket.sessionID} / userID: ${socket.userID}`);
+  console.log(
+    `${socket.username} : sessionID: ${socket.sessionID} / userID: ${socket.userID}`
+  );
 
   if (session.user.friends) {
-    session.user.friends.forEach(friend => {
-      redis.hgetall(`userid:${friend.username}`).then(result => {
-        friend.connected = result.connected;
-        socket.to(result.userID).emit("online", socket.username);
-      });
-    });
+    for (let friend of session.user.friends) {
+      const query = await redis.hgetall(`userid:${friend.username}`);
+      friend.connected = query.connected;
+      socket.to(query.userID).emit("online", socket.username);
+    }
     session.save();
     socket.emit("friends", socket.request.session.user.friends);
   } else {
@@ -73,18 +73,20 @@ module.exports.addFriend = async (redis, socket, username) => {
         { username, userID: result.userID, connected: result.connected },
       ];
 
-      socket.request.session.save();
-      console.log("friends: ", socket.request.session.user.friends);
+      session.save();
+      console.log("friends: ", session.user.friends);
 
-      socket.emit("friends", socket.request.session.user.friends);
+      socket.emit("friends", session.user.friends);
+
+      session.user.friends.forEach(friend => {
+        socket.to(friend.userID).emit("online", socket.username);
+      });
     }
   });
 };
 
 module.exports.onDisconnect = (redis, socket, reason) => {
   redis.hset(`userid:${socket.username}`, "connected", false);
-
-  // console.log(socket.request.session.user.friends);
 
   // emit to friends
   socket.request.session.user.friends.forEach(({ userID }) => {
