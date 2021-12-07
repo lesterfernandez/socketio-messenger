@@ -14,27 +14,45 @@ module.exports.socketAuth = (socket, next) => {
 };
 
 module.exports.setRedisUser = (redis, socket) => {
-  redis.set(`userid:${socket.username}`, socket.userID);
+  redis.hset(
+    `userid:${socket.username}`,
+    "userID",
+    socket.userID,
+    "connected",
+    true
+  );
 };
 
-module.exports.initialize = socket => {
+module.exports.initialize = async (redis, socket) => {
   socket.join(socket.userID);
+  const session = socket.request.session;
 
   console.log(`Client ${socket.user.username} connected...`);
   console.log(`sessionID: ${socket.sessionID} / userID: ${socket.userID}`);
 
-  if (socket.request.session.user.friends) {
+  if (session.user.friends) {
+    session.user.friends.forEach(friend => {
+      redis.hgetall(`userid:${friend.username}`).then(result => {
+        friend.connected = result.connected;
+        socket.to(result.userID).emit("online", socket.username);
+      });
+    });
     socket.emit("friends", socket.request.session.user.friends);
+  } else {
+    session.user.friends = [];
   }
+  session.save();
 };
 
-module.exports.addFriend = (redis, socket, username) => {
-  redis.get(`userid:${username}`, (err, result) => {
+module.exports.addFriend = async (redis, socket, username) => {
+  const friendConnected = await redis.hget(`userid:${username}`, "connected");
+
+  redis.hget(`userid:${username}`, "userID", (err, result) => {
     if (err) {
       socket.emit("error", err);
       console.log(err);
     } else {
-      if (!result) {
+      if (!result || !result.username) {
         console.log("friend doesn't exist");
         return;
       }
@@ -53,7 +71,7 @@ module.exports.addFriend = (redis, socket, username) => {
 
       session.user.friends = [
         ...session.user.friends,
-        { username, userID: result },
+        { username, userID: result, connected: friendConnected },
       ];
 
       socket.request.session.save();
@@ -62,4 +80,17 @@ module.exports.addFriend = (redis, socket, username) => {
       socket.emit("friends", socket.request.session.user.friends);
     }
   });
+};
+
+module.exports.onDisconnect = (redis, socket, reason) => {
+  redis.hset(`userid:${socket.username}`, "connected", false);
+
+  // console.log(socket.request.session.user.friends);
+
+  // emit to friends
+  socket.request.session.user.friends.forEach(({ userID }) => {
+    socket.to(userID).emit("offline", socket.username);
+  });
+
+  console.log("Client disconnected...", reason);
 };

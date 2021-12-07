@@ -10,6 +10,7 @@ const {
   addFriend,
   setRedisUser,
   initialize,
+  onDisconnect,
 } = require("./connectors/socketAuth");
 const session = require("express-session");
 const Redis = require("ioredis");
@@ -62,14 +63,14 @@ io.use(socketAuth);
 
 io.on("connect", socket => {
   setRedisUser(redisClient, socket);
-  initialize(socket);
+  initialize(redisClient, socket);
 
   socket.on("add friend", username => {
     addFriend(redisClient, socket, username);
   });
 
   socket.on("disconnecting", reason => {
-    console.log("Client disconnecting...", reason);
+    onDisconnect(redisClient, socket, reason);
   });
 });
 
