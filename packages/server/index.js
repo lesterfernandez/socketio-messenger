@@ -74,6 +74,11 @@ io.on("connect", socket => {
     onMessage(redisClient, socket, message, cb);
   });
 
+  socket.on("logout", () => {
+    socket.disconnect();
+    socket.request.logout();
+  });
+
   socket.on("disconnecting", reason => {
     onDisconnect(redisClient, socket, reason);
   });

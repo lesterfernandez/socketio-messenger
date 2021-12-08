@@ -11,15 +11,18 @@ import {
 } from "@chakra-ui/layout";
 import { Tab, TabList } from "@chakra-ui/tabs";
 import { useContext } from "react";
+import socket from "../../socket";
+import { UserContext } from "../AccountContext";
 import { FriendContext } from "./Home";
 import NewFriendModal from "./NewFriendModal";
 
 const ChatSideBar = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { friendList } = useContext(FriendContext);
+  const { userObject, setUser } = useContext(UserContext);
   return (
     <>
-      <VStack borderRight="1px solid gray" h="100%" py="1rem">
+      <VStack borderRight="1px solid gray" h="100vh" py="1rem">
         <HStack justify="space-evenly" w="100%">
           <Heading as="p" size="sm">
             Add Friend
@@ -42,6 +45,18 @@ const ChatSideBar = () => {
               </HStack>
             ))}
         </VStack>
+        <HStack mt="auto" pos="absolute" bottom="0" left="0" p="1rem">
+          <Button
+            size="sm"
+            onClick={() => {
+              socket.emit("logout");
+              setUser({ loggedIn: false });
+            }}
+          >
+            Log Out
+          </Button>
+          <Heading size="xs">Signed In as {userObject.username}</Heading>
+        </HStack>
       </VStack>
       <NewFriendModal isOpen={isOpen} onClose={onClose} />
     </>

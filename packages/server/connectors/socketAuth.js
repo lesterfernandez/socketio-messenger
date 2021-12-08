@@ -108,7 +108,7 @@ module.exports.onMessage = async (redis, socket, message, cb) => {
   );
   socket.to(message.to).emit("private message", message);
   cb(message);
-  console.log("message: ", message);
+  // console.log("message: ", message);
 };
 
 module.exports.onDisconnect = (redis, socket, reason) => {

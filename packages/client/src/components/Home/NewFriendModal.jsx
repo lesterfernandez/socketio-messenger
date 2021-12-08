@@ -35,7 +35,7 @@ const NewFriendModal = ({ isOpen, onClose }) => {
         >
           <Form>
             <ModalBody>
-              <TextField label="Username" name="friendName" />
+              <TextField label="Username" name="friendName" autoComplete="off" />
             </ModalBody>
             <ModalFooter>
               <Button colorScheme="teal" type="submit" onClick={onClose}>

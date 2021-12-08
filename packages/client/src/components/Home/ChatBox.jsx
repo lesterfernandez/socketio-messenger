@@ -29,6 +29,7 @@ const ChatBox = ({ userID }) => {
           name="message"
           placeholder="Type message here.."
           size="lg"
+          autoComplete="off"
         />
         <Button type="submit" size="lg" colorScheme="teal">
           Send
