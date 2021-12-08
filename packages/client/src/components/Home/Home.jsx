@@ -7,10 +7,29 @@ import Chat from "./Chat";
 import ChatSideBar from "./ChatSideBar";
 
 export const FriendContext = createContext();
+export const MessagesContext = createContext();
+
+// const initialMessages ={}
+
+// const msgReducer = (messages, action) => {
+//   switch (action.type) {
+//     case "messages":
+//       Object.keys(messages).map(chatUsername => {
+
+//       })
+//       return messages;
+//     case "private message":
+//       return messages;
+//     default:
+//       return messages;
+//   }
+// };
 
 const Home = () => {
   const { setUser } = useContext(UserContext);
   const [friendList, setFriendList] = useState([]);
+  const [messages, setMessages] = useState([]);
+  const [friendIndex, setFriendIndex] = useState(0);
 
   useEffect(() => {
     socket.connect();
@@ -18,10 +37,10 @@ const Home = () => {
       setUser({ loggedIn: false });
     });
     socket.on("connect", () => {
-      console.log("connected to socketio server");
+      // console.log("connected to socketio server");
     });
     socket.on("friends", friends => {
-      console.log("friends: ", friends);
+      // console.log("friends: ", friends);
       setFriendList(friends);
     });
     socket.on("offline", username => {
@@ -43,23 +62,38 @@ const Home = () => {
         })
       );
     });
+    socket.on("private message", newMsg => {
+      setMessages(c => [newMsg, ...c]);
+    });
+    socket.on("messages", messages => {
+      setMessages(messages);
+    });
     return () => {
       socket.off("connect_error");
       socket.off("connect");
       socket.off("friends");
       socket.off("offline");
       socket.off("online");
+      socket.off("private message");
+      socket.off("messages");
     };
   }, [setUser]);
 
   return (
     <FriendContext.Provider value={{ friendList, setFriendList }}>
-      <Grid templateColumns="repeat(10, 1fr)" width="100%" minH="100vh" as={Tabs}>
+      <Grid
+        templateColumns="repeat(10, 1fr)"
+        width="100%"
+        as={Tabs}
+        onChange={index => setFriendIndex(index)}
+      >
         <GridItem colSpan="3">
           <ChatSideBar />
         </GridItem>
         <GridItem gridColumn="4 / -1">
-          <Chat />
+          <MessagesContext.Provider value={{ messages, setMessages }}>
+            <Chat friendIndex={friendIndex} />
+          </MessagesContext.Provider>
         </GridItem>
       </Grid>
     </FriendContext.Provider>

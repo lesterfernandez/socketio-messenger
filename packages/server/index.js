@@ -11,6 +11,7 @@ const {
   setRedisUser,
   initialize,
   onDisconnect,
+  onMessage,
 } = require("./connectors/socketAuth");
 const session = require("express-session");
 const Redis = require("ioredis");
@@ -67,6 +68,10 @@ io.on("connect", socket => {
 
   socket.on("add friend", username => {
     addFriend(redisClient, socket, username);
+  });
+
+  socket.on("private message", (message, cb) => {
+    onMessage(redisClient, socket, message, cb);
   });
 
   socket.on("disconnecting", reason => {

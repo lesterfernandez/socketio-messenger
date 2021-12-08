@@ -43,6 +43,16 @@ module.exports.initialize = async (redis, socket) => {
     session.user.friends = [];
     session.save();
   }
+
+  const messagesQuery = await redis.lrange(`chat:${socket.userID}`, 0, -1);
+  const messages = messagesQuery.map(msg => {
+    const msgSplit = msg.split(".");
+    return { to: msgSplit[0], from: msgSplit[1], content: msgSplit[2] };
+  });
+
+  if (messages && messages.length > 0) {
+    socket.emit("messages", messages);
+  }
 };
 
 module.exports.addFriend = async (redis, socket, username) => {
@@ -83,6 +93,22 @@ module.exports.addFriend = async (redis, socket, username) => {
       });
     }
   });
+};
+
+module.exports.onMessage = async (redis, socket, message, cb) => {
+  message.from = socket.userID;
+  // to.from.content
+  await redis.lpush(
+    `chat:${socket.userID}`,
+    `${message.to}.${message.from}.${message.content}`
+  );
+  await redis.lpush(
+    `chat:${message.to}`,
+    `${message.to}.${message.from}.${message.content}`
+  );
+  socket.to(message.to).emit("private message", message);
+  cb(message);
+  console.log("message: ", message);
 };
 
 module.exports.onDisconnect = (redis, socket, reason) => {
