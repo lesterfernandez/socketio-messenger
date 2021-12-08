@@ -1,6 +1,6 @@
 import { Heading, Text, VStack } from "@chakra-ui/layout";
 import { TabPanel, TabPanels } from "@chakra-ui/tabs";
-import { useContext } from "react";
+import { useContext, useEffect, useRef } from "react";
 import ChatBox from "./ChatBox";
 import { FriendContext, MessagesContext } from "./Home";
 
@@ -8,17 +8,22 @@ const Chat = ({ friendIndex }) => {
   const { friendList } = useContext(FriendContext);
   const { messages } = useContext(MessagesContext);
 
+  const chatBottom = useRef(null);
+  useEffect(() => {
+    chatBottom.current?.scrollIntoView();
+  });
+
   return friendList.length > 0 ? (
-    <VStack justify="end" maxH="100vh" h="100%">
-      <TabPanels>
+    <VStack justify="end" h="100%">
+      <TabPanels overflowY="scroll">
         {friendList.map(friend => (
           <VStack
             flexDir="column-reverse"
             as={TabPanel}
             key={"chat: " + friend.userID}
             w="100%"
-            overflowY="scroll"
           >
+            <div ref={chatBottom} />
             {messages
               .filter(
                 msg => msg.to === friend.userID || msg.from === friend.userID

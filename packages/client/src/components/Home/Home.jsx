@@ -86,11 +86,13 @@ const Home = () => {
         width="100%"
         as={Tabs}
         onChange={index => setFriendIndex(index)}
+        maxH="100vh"
+        pos="relative"
       >
         <GridItem colSpan="3">
           <ChatSideBar />
         </GridItem>
-        <GridItem gridColumn="4 / -1">
+        <GridItem gridColumn="4 / -1" bottom="0" top="0" maxH="100vh">
           <MessagesContext.Provider value={{ messages, setMessages }}>
             <Chat friendIndex={friendIndex} />
           </MessagesContext.Provider>
